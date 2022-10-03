@@ -22,18 +22,18 @@ class Sudoku():
         self.board      = []
         for _ in range(9):
             self.board.append(['.'] * 9)
-        self.board_fill = _EASY_MODE_PERCENT_FILLED
-        self.clear_bias = self.board_fill / 9
+        self.__board_fill = _EASY_MODE_PERCENT_FILLED
+        self.__clear_bias = self.__board_fill / 9
 
 
     #helper functions
-    def set_bit(self, x, k):
+    def __set_bit(self, x, k):
         '''set the kth bit of x'''
         return (1 << k) | x
-    def get_bit(self, x, k):
+    def __get_bit(self, x, k):
         '''get the kth bit of x'''
         return (x >> k) & 1
-    def clear_bit(self, x, k):
+    def __clear_bit(self, x, k):
         '''reset the kth bit of x'''
         return ~(1 << k) & x
 
@@ -51,16 +51,16 @@ class Sudoku():
         x     difficulty level between 1 and 3
         '''
         if x == 1:
-            self.board_fill     = _EASY_MODE_PERCENT_FILLED
+            self.__board_fill     = _EASY_MODE_PERCENT_FILLED
         elif x == 2:
-            self.board_fill     = _MED_MODE_PERCENT_FILLED
+            self.__board_fill     = _MED_MODE_PERCENT_FILLED
         elif x == 3:
-            self.board_fill     = _HARD_MODE_PERCENT_FILLED
+            self.__board_fill     = _HARD_MODE_PERCENT_FILLED
         else:
             print("Invalid difficulty selection\nDefaulting to easy difficulty")
-            self.board_fill     = _EASY_MODE_PERCENT_FILLED
+            self.__board_fill     = _EASY_MODE_PERCENT_FILLED
 
-        self.clear_bias         = self.board_fill / 9
+        self.__clear_bias         = self.__board_fill / 9
 
 
     def build_board(self):
@@ -68,10 +68,10 @@ class Sudoku():
         rows            = [0] * 9
         cols            = [0] * 9
         boxes           = [0] * 9
-        remaining_clear = 81 - self.board_fill
+        remaining_clear = 81 - self.__board_fill
         bias_correction = 0
 
-        self.backtracking_algorithm(generation_mode = 1)
+        self.__backtracking_algorithm(generation_mode = 1)
 
         for r in range(9):
             for c in range(9):
@@ -80,19 +80,19 @@ class Sudoku():
                     break
 
                 #Fill board randomly based on difficulty
-                if random.randint(1, 81) > (self.board_fill - bias_correction):
+                if random.randint(1, 81) > (self.__board_fill - bias_correction):
                     #remove number from board
                     b                   = (r // 3) * 3 + (c // 3)
                     number              = int(self.board[r][c])
                     self.board[r][c]    = '.'
-                    rows[r]             = self.clear_bit(rows[r], number)
-                    cols[c]             = self.clear_bit(cols[c], number)
-                    boxes[b]            = self.clear_bit(boxes[b], number)
+                    rows[r]             = self.__clear_bit(rows[r], number)
+                    cols[c]             = self.__clear_bit(cols[c], number)
+                    boxes[b]            = self.__clear_bit(boxes[b], number)
                     remaining_clear     -= 1
                     continue
 
-            bias_correction = (remaining_clear - ((81 - self.board_fill) / 9 \
-                * (8 - r))) * self.clear_bias
+            bias_correction = (remaining_clear - ((81 - self.__board_fill) / 9 \
+                * (8 - r))) * self.__clear_bias
 
 
     def solve_board(self):
@@ -108,17 +108,17 @@ class Sudoku():
                 if self.board[r][c] != '.':
                     #get box number
                     b = (r // 3) * 3 + (c // 3)
-                    rows[r]     = self.set_bit(rows[r], int(self.board[r][c]))
-                    cols[c]     = self.set_bit(cols[c], int(self.board[r][c]))
-                    boxes[b]    = self.set_bit(boxes[b], int(self.board[r][c]))
+                    rows[r]   = self.__set_bit(rows[r], int(self.board[r][c]))
+                    cols[c]   = self.__set_bit(cols[c], int(self.board[r][c]))
+                    boxes[b]  = self.__set_bit(boxes[b], int(self.board[r][c]))
                 #get locations of empty positions
                 else:
                     empty_positions.append([r, c])
 
-        self.backtracking_algorithm(empty_positions, rows, cols, boxes)
+        self.__backtracking_algorithm(empty_positions, rows, cols, boxes)
 
 
-    def backtracking_algorithm(
+    def __backtracking_algorithm(
         self,
         empty_positions             = None,
         rows                        = None,
@@ -177,19 +177,19 @@ class Sudoku():
             else:
                 number = num + 1
             #if numbrer exists in row, col, or box, skip it
-            if (self.get_bit(rows[r], number)) or \
-                (self.get_bit(cols[c], number)) or \
-                (self.get_bit(boxes[b], number)):
+            if (self.__get_bit(rows[r], number)) or \
+                (self.__get_bit(cols[c], number)) or \
+                (self.__get_bit(boxes[b], number)):
                 continue
 
             #add valid number to board
             self.board[r][c]    = str(number)
-            rows[r]             = self.set_bit(rows[r], number)
-            cols[c]             = self.set_bit(cols[c], number)
-            boxes[b]            = self.set_bit(boxes[b], number)
+            rows[r]             = self.__set_bit(rows[r], number)
+            cols[c]             = self.__set_bit(cols[c], number)
+            boxes[b]            = self.__set_bit(boxes[b], number)
 
             #call function with incremented index
-            if self.backtracking_algorithm(
+            if self.__backtracking_algorithm(
                 empty_positions,
                 rows,
                 cols,
@@ -200,9 +200,9 @@ class Sudoku():
                 return True
             #Clear bits if next position could not find a working value
             self.board[r][c]    = '.'
-            rows[r]             = self.clear_bit(rows[r], number)
-            cols[c]             = self.clear_bit(cols[c], number)
-            boxes[b]            = self.clear_bit(boxes[b], number)
+            rows[r]             = self.__clear_bit(rows[r], number)
+            cols[c]             = self.__clear_bit(cols[c], number)
+            boxes[b]            = self.__clear_bit(boxes[b], number)
         #return false if no numbers work for the current board
         return False
 
