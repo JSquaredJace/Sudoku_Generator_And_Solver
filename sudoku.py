@@ -80,7 +80,8 @@ class Sudoku():
                     break
 
                 #Fill board randomly based on difficulty
-                if random.randint(1, 81) > (self.__board_fill - bias_correction):
+                if random.randint(1, 81) > (self.__board_fill \
+                    - bias_correction):
                     #remove number from board
                     b                   = (r // 3) * 3 + (c // 3)
                     number              = int(self.board[r][c])
