@@ -207,7 +207,7 @@ class Sudoku():
         return False
 
 # ''' Test Code '''
-# sudoku_puzzle = SudokuMachine()
+# sudoku_puzzle = Sudoku()
 # sudoku_puzzle.change_difficulty(2)
 # sudoku_puzzle.build_board()
 # sudoku_puzzle.print_board()
