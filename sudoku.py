@@ -11,29 +11,29 @@ Program for solving Sudoku puzzles and generating random sudoku puzzles
 import random
 
 # Global variables
-_EASY_MODE_PERCENT_FILLED   = 45
-_MED_MODE_PERCENT_FILLED    = 38
-_HARD_MODE_PERCENT_FILLED   = 28
+_EASY_MODE_PERCENT_FILLED:  int = 45
+_MED_MODE_PERCENT_FILLED:   int = 38
+_HARD_MODE_PERCENT_FILLED:  int = 28
 
 # Classes
 class Sudoku():
     '''Contains the sudoku board and methods to modify it'''
     def __init__(self):
-        self.board      = []
+        self.board:         list[list[int]] = []
         for _ in range(9):
             self.board.append(['.'] * 9)
-        self.__board_fill = _EASY_MODE_PERCENT_FILLED
-        self.__clear_bias = self.__board_fill / 9
+        self.__board_fill                   = _EASY_MODE_PERCENT_FILLED
+        self.__clear_bias:  int             = self.__board_fill / 9
 
 
     #helper functions
-    def __set_bit(self, x, k):
+    def __set_bit(self, x: int, k: int) -> int:
         '''set the kth bit of x'''
         return (1 << k) | x
-    def __get_bit(self, x, k):
+    def __get_bit(self, x: int, k: int) -> int:
         '''get the kth bit of x'''
         return (x >> k) & 1
-    def __clear_bit(self, x, k):
+    def __clear_bit(self, x: int, k: int) -> int:
         '''reset the kth bit of x'''
         return ~(1 << k) & x
 
@@ -65,11 +65,14 @@ class Sudoku():
 
     def build_board(self):
         '''Fill the gameboard with valid numbers'''
-        rows            = [0] * 9
-        cols            = [0] * 9
-        boxes           = [0] * 9
-        remaining_clear = 81 - self.__board_fill
-        bias_correction = 0
+        rows:               list[int]       = [0] * 9
+        cols:               list[int]       = [0] * 9
+        boxes:              list[int]       = [0] * 9
+        #current box
+        b:                  int             = 0
+        remaining_clear:    int             = 81 - self.__board_fill
+        bias_correction:    int             = 0
+        number:             int             = 0
 
         self.__backtracking_algorithm(generation_mode = 1)
 
@@ -98,17 +101,19 @@ class Sudoku():
 
     def solve_board(self):
         '''Solve the gameboard'''
-        rows            = [0] * 9
-        cols            = [0] * 9
-        boxes           = [0] * 9
-        empty_positions = []
+        rows:               list[int]       = [0] * 9
+        cols:               list[int]       = [0] * 9
+        boxes:              list[int]       = [0] * 9
+        #current box
+        b:                  int             = 0
+        empty_positions:    list[list[int]] = []
 
         for r in range(9):
             for c in range(9):
                 #get row, col, and box contents
                 if self.board[r][c] != '.':
                     #get box number
-                    b = (r // 3) * 3 + (c // 3)
+                    b         = (r // 3) * 3 + (c // 3)
                     rows[r]   = self.__set_bit(rows[r], int(self.board[r][c]))
                     cols[c]   = self.__set_bit(cols[c], int(self.board[r][c]))
                     boxes[b]  = self.__set_bit(boxes[b], int(self.board[r][c]))
@@ -121,13 +126,14 @@ class Sudoku():
 
     def __backtracking_algorithm(
         self,
-        empty_positions             = None,
-        rows                        = None,
-        cols                        = None,
-        boxes                       = None,
-        index                       = 0,
-        generation_mode             = 0,
-        generation_first_pass       = 1):
+        empty_positions:        list[list[int]] = None,
+        rows:                   list[int]       = None,
+        cols:                   list[int]       = None,
+        boxes:                  list[int]       = None,
+        index:                  int = 0,
+        generation_mode:        int = 0,
+        generation_first_pass:  int = 1
+        ) -> bool:
         '''Apply backtracking algorithm to solve Sudoku and create solvable
         Sudoku
 
